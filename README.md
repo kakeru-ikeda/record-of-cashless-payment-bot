@@ -1,4 +1,4 @@
-# RoCP BOT
+# RoCP Discord BOT - システム管理用BOT
 
 RoCP BOTは、Discord上で動作するボットで、スラッシュコマンドを使用してサービスの起動・停止などの操作を行うことができます。このボットはTypeScriptで実装されており、discord.jsライブラリのv14を利用しています。
 
@@ -10,6 +10,12 @@ RoCP BOTは、Discord上で動作するボットで、スラッシュコマン�
   - `/stop`: サービスを停止します。
   - `/restart`: サービスを再起動します。
   - `/status`: サービスの状態を確認します。
+
+## 関連リポジトリ
+
+- **バックエンド**: [record-of-cashless-payment](https://github.com/kakeru-ikeda/record-of-cashless-payment)
+- **フロントエンド**: [record-of-cashless-payment-webfront](https://github.com/kakeru-ikeda/record-of-cashless-payment-webfront)
+- **Discord BOT**: このリポジトリ
 
 ## セットアップ
 
@@ -54,4 +60,4 @@ RoCP BOTは、Discord上で動作するボットで、スラッシュコマン�
 
 ## ライセンス
 
-このプロジェクトはMITライセンスの下で公開されています。詳細はLICENSEファイルを参照してください。
+このプロジェクトはプライベートで使用することを前提としており、個人的なカード利用通知の管理のための参考実装です
