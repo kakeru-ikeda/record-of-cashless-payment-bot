@@ -19,6 +19,8 @@ RoCP BOTは、Discord上で動作するボットで、スラッシュコマン�
 
 ## セットアップ
 
+### 通常のセットアップ
+
 1. リポジトリをクローンします。
    ```
    git clone https://github.com/kakeru-ikeda/rocp-bot.git
@@ -40,6 +42,40 @@ RoCP BOTは、Discord上で動作するボットで、スラッシュコマン�
 5. ボットを起動します。
    ```
    npm start
+   ```
+
+### Dockerでの実行方法
+
+Dockerを使用してボットを実行することもできます：
+
+1. 環境変数を設定します。`.env.example`をコピーして`.env`を作成し、必要な値を設定します。
+
+2. 提供されたスクリプトを使用して起動します。
+   ```
+   ./docker-start.sh
+   ```
+
+3. ボットを停止する場合は、以下のコマンドを実行します。
+   ```
+   ./docker-stop.sh
+   ```
+
+4. または、docker-composeを直接使用して起動・停止することもできます。
+   ```
+   # 起動
+   docker-compose up -d
+   
+   # 停止
+   docker-compose down
+   ```
+
+5. ログの確認方法
+   ```
+   # コンテナログを確認
+   docker logs rocp-discord-bot
+   
+   # またはlogsディレクトリ内のログファイルを直接確認
+   cat logs/combined.log
    ```
 
 ## 使用方法
