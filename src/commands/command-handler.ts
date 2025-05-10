@@ -5,6 +5,7 @@ import { pingCommand } from './slash-commands/ping';
 import { startCommand } from './slash-commands/start';
 import { stopCommand } from './slash-commands/stop';
 import { statusCommand } from './slash-commands/status';
+import { restartCommand } from './slash-commands/restart';
 import { Command } from '../types/command';
 
 export class CommandHandler {
@@ -22,6 +23,7 @@ export class CommandHandler {
         this.registerCommand(startCommand);
         this.registerCommand(stopCommand);
         this.registerCommand(statusCommand);
+        this.registerCommand(restartCommand);
       
         logger.info(`全${this.commands.size}件のコマンドが登録されました`, 'CommandHandler');
       }
@@ -70,7 +72,8 @@ export const commands = [
     pingCommand,
     startCommand,
     stopCommand,
-    statusCommand
+    statusCommand,
+    restartCommand
 ].map(command => {
     if ('data' in command) {
         return command.data;

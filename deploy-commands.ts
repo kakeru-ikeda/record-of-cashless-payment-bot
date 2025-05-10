@@ -22,6 +22,9 @@ const commands = [
   new SlashCommandBuilder()
     .setName('status')
     .setDescription('サービスの状態を確認します'),
+  new SlashCommandBuilder()
+    .setName('restart')
+    .setDescription('メール監視サービスを再起動します'),
 ].map(command => command.toJSON());
 
 const rest = new REST({ version: '9' }).setToken(Environment.DISCORD_TOKEN);

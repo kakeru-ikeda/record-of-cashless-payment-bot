@@ -29,6 +29,16 @@ export class ServiceManager implements ServiceManagerInterface {
         }
     }
 
+    public async restartService(serviceId: string): Promise<void> {
+        try {
+            await this.apiClient.restartService(serviceId);
+            logInfo(`Service ${serviceId} restarted successfully.`);
+        } catch (error) {
+            logError(`Failed to restart service ${serviceId}`, error instanceof Error ? error : new Error(String(error)));
+            throw error;
+        }
+    }
+
     public async getServiceStatus(serviceId: string): Promise<string> {
         try {
             const response = await this.apiClient.getServiceStatus(serviceId);
