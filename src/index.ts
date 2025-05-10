@@ -1,9 +1,8 @@
 import { Client, GatewayIntentBits } from 'discord.js';
 import { config } from 'dotenv';
-import { CommandHandler } from './commands/command-handler';
 import { EventHandler } from './events/event-handler';
 import { Environment } from './config/environment';
-import { logger, logInfo, logError, logWarn } from './utils/logger';
+import { logInfo, logError, logWarn } from './utils/logger';
 import { firebaseService } from './services/firebase-service';
 
 // 環境変数の読み込み
