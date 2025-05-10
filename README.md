@@ -8,13 +8,14 @@ RoCP BOTは、Discord上で動作するボットで、スラッシュコマン�
   - `/ping`: ボットの応答を確認します。
   - `/start`: サービスを起動します。
   - `/stop`: サービスを停止します。
+  - `/restart`: サービスを再起動します。
   - `/status`: サービスの状態を確認します。
 
 ## セットアップ
 
 1. リポジトリをクローンします。
    ```
-   git clone <repository-url>
+   git clone https://github.com/kakeru-ikeda/rocp-bot.git
    cd rocp-bot
    ```
 
