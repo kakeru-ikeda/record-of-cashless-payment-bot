@@ -11,30 +11,39 @@ export class ServiceManager implements ServiceManagerInterface {
 
     public async startService(serviceId: string): Promise<void> {
         try {
-            await this.apiClient.startService(serviceId);
-            logInfo(`Service ${serviceId} started successfully.`);
+            const response = await this.apiClient.startService(serviceId);
+            if (!response.success) {
+                throw new Error(response.message || `サービス ${serviceId} の起動に失敗しました`);
+            }
+            logInfo(`サービス ${serviceId} の起動に成功しました`, 'ServiceManager');
         } catch (error) {
-            logError(`Failed to start service ${serviceId}`, error instanceof Error ? error : new Error(String(error)));
+            logError(`サービス ${serviceId} の起動に失敗しました`, error instanceof Error ? error : new Error(String(error)), 'ServiceManager');
             throw error;
         }
     }
 
     public async stopService(serviceId: string): Promise<void> {
         try {
-            await this.apiClient.stopService(serviceId);
-            logInfo(`Service ${serviceId} stopped successfully.`);
+            const response = await this.apiClient.stopService(serviceId);
+            if (!response.success) {
+                throw new Error(response.message || `サービス ${serviceId} の停止に失敗しました`);
+            }
+            logInfo(`サービス ${serviceId} の停止に成功しました`, 'ServiceManager');
         } catch (error) {
-            logError(`Failed to stop service ${serviceId}`, error instanceof Error ? error : new Error(String(error)));
+            logError(`サービス ${serviceId} の停止に失敗しました`, error instanceof Error ? error : new Error(String(error)), 'ServiceManager');
             throw error;
         }
     }
 
     public async restartService(serviceId: string): Promise<void> {
         try {
-            await this.apiClient.restartService(serviceId);
-            logInfo(`Service ${serviceId} restarted successfully.`);
+            const response = await this.apiClient.restartService(serviceId);
+            if (!response.success) {
+                throw new Error(response.message || `サービス ${serviceId} の再起動に失敗しました`);
+            }
+            logInfo(`サービス ${serviceId} の再起動に成功しました`, 'ServiceManager');
         } catch (error) {
-            logError(`Failed to restart service ${serviceId}`, error instanceof Error ? error : new Error(String(error)));
+            logError(`サービス ${serviceId} の再起動に失敗しました`, error instanceof Error ? error : new Error(String(error)), 'ServiceManager');
             throw error;
         }
     }
@@ -42,9 +51,18 @@ export class ServiceManager implements ServiceManagerInterface {
     public async getServiceStatus(serviceId: string): Promise<string> {
         try {
             const response = await this.apiClient.getServiceStatus(serviceId);
-            return response.status;
+            if (!response.success) {
+                throw new Error(response.message || `サービス ${serviceId} のステータス取得に失敗しました`);
+            }
+            
+            // 新APIスキーマでのサービスステータスのアクセス方法
+            if (response.data && typeof response.data === 'object' && 'status' in response.data) {
+                return response.data.status;
+            }
+            
+            throw new Error(`サービス ${serviceId} のステータス情報が見つかりません`);
         } catch (error) {
-            logError(`Failed to get status for service ${serviceId}`, error instanceof Error ? error : new Error(String(error)));
+            logError(`サービス ${serviceId} のステータス取得に失敗しました`, error instanceof Error ? error : new Error(String(error)), 'ServiceManager');
             throw error;
         }
     }
@@ -52,9 +70,17 @@ export class ServiceManager implements ServiceManagerInterface {
     public async listServices(): Promise<Service[]> {
         try {
             const response = await this.apiClient.listServices();
-            return response.services;
+            if (!response.success) {
+                throw new Error(response.message || 'サービス一覧の取得に失敗しました');
+            }
+            
+            if (!response.data || !Array.isArray(response.data)) {
+                throw new Error('サービス一覧の形式が無効です');
+            }
+            
+            return response.data as Service[];
         } catch (error) {
-            logError('Failed to list services', error instanceof Error ? error : new Error(String(error)));
+            logError('サービス一覧の取得に失敗しました', error instanceof Error ? error : new Error(String(error)), 'ServiceManager');
             throw error;
         }
     }

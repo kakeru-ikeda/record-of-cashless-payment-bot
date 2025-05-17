@@ -16,8 +16,9 @@ export const stopCommand: Command = {
             await serviceManager.stopService('email-monitoring');
             await interaction.editReply('✅ メール監視サービスを停止しました。');
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
             logError('サービス停止エラー', error instanceof Error ? error : new Error(String(error)), 'StopCommand');
-            await interaction.editReply('❌ サービスの停止中にエラーが発生しました。');
+            await interaction.editReply(`❌ サービスの停止中にエラーが発生しました: ${errorMessage}`);
         }
     },
     data: new SlashCommandBuilder()

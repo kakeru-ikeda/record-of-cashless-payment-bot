@@ -16,10 +16,10 @@ export const statusCommand: Command = {
         
         try {
             // サービス状態を取得
-            const services = await apiClient.listServices();
+            const servicesResponse = await apiClient.listServices();
             
-            if (!services || !services.data || services.data.length === 0) {
-                await interaction.editReply('❌ サービス情報を取得できませんでした。');
+            if (!servicesResponse.success || !servicesResponse.data || servicesResponse.data.length === 0) {
+                await interaction.editReply(`❌ サービス情報を取得できませんでした: ${servicesResponse.message || 'エラーが発生しました'}`);
                 return;
             }
             
@@ -27,6 +27,9 @@ export const statusCommand: Command = {
             let monitoringStatus;
             try {
                 monitoringStatus = await apiClient.getMonitoringStatus();
+                if (!monitoringStatus.success) {
+                    logError('モニタリングステータス取得エラー', new Error(monitoringStatus.message), 'StatusCommand');
+                }
             } catch (error) {
                 // モニタリング情報の取得に失敗してもサービス情報は表示する
                 logError('モニタリングステータス取得エラー', error instanceof Error ? error : new Error(String(error)), 'StatusCommand');
@@ -41,15 +44,20 @@ export const statusCommand: Command = {
             
             // サービス一覧を表示
             let servicesText = '';
-            services.data.forEach((service: any) => {
+            servicesResponse.data.forEach((service: any) => {
                 const statusIcon = service.status === 'active' ? '🟢' : '🔴';
                 servicesText += `${statusIcon} **${service.name}**: ${service.status === 'active' ? 'アクティブ' : '停止中'}\n`;
+                
+                // 利用可能なアクションがあれば表示
+                if (service.actions && Array.isArray(service.actions) && service.actions.length > 0) {
+                    servicesText += `   利用可能なアクション: ${service.actions.join(', ')}\n`;
+                }
             });
             
             statusEmbed.addFields({ name: 'サービス状態', value: servicesText || 'サービスはありません' });
             
             // モニタリング情報があれば追加
-            if (monitoringStatus && monitoringStatus.data) {
+            if (monitoringStatus && monitoringStatus.success && monitoringStatus.data) {
                 let monitoringText = '';
                 const statusData = monitoringStatus.data;
                 
