@@ -3,6 +3,16 @@ import { Environment } from '../config/environment';
 import { firebaseService } from './firebase-service';
 import { logError, logInfo } from '../utils/logger';
 
+/**
+ * 標準APIレスポンス型
+ */
+export interface ApiResponse<T = any> {
+    status: number;
+    success: boolean;
+    message: string;
+    data: T | null;
+}
+
 export class ApiClient {
     private baseUrl: string;
     private authTokenPromise: Promise<string> | null = null;
@@ -69,105 +79,109 @@ export class ApiClient {
         logInfo('認証トークンを再取得しました', 'ApiClient');
     }
 
-    async getServiceStatus(serviceId: string): Promise<any> {
+    async getServiceStatus(serviceId: string): Promise<ApiResponse> {
         try {
             const response = await axios.get(`${this.baseUrl}/api/services/${serviceId}`, {
                 headers: await this.getHeaders()
             });
-            return response.data;
+            return response.data as ApiResponse;
         } catch (error) {
-            this.handleApiError(error, `Failed to fetch status for service ${serviceId}`);
+            throw this.handleApiError(error, `Failed to fetch status for service ${serviceId}`);
         }
     }
 
-    async listServices(): Promise<any> {
+    async listServices(): Promise<ApiResponse> {
         try {
             const response = await axios.get(`${this.baseUrl}/api/services`, {
                 headers: await this.getHeaders()
             });
-            return response.data;
+            return response.data as ApiResponse;
         } catch (error) {
-            this.handleApiError(error, 'Failed to list services');
+            throw this.handleApiError(error, 'Failed to list services');
         }
     }
 
-    async startService(serviceId: string): Promise<any> {
+    async startService(serviceId: string): Promise<ApiResponse> {
         try {
             const response = await axios.post(`${this.baseUrl}/api/services/${serviceId}`, {
                 action: 'start'
             }, {
                 headers: await this.getHeaders()
             });
-            return response.data;
+            return response.data as ApiResponse;
         } catch (error) {
-            this.handleApiError(error, `Failed to start service ${serviceId}`);
+            throw this.handleApiError(error, `Failed to start service ${serviceId}`);
         }
     }
 
-    async stopService(serviceId: string): Promise<any> {
+    async stopService(serviceId: string): Promise<ApiResponse> {
         try {
             const response = await axios.post(`${this.baseUrl}/api/services/${serviceId}`, {
                 action: 'stop'
             }, {
                 headers: await this.getHeaders()
             });
-            return response.data;
+            return response.data as ApiResponse;
         } catch (error) {
-            this.handleApiError(error, `Failed to stop service ${serviceId}`);
+            throw this.handleApiError(error, `Failed to stop service ${serviceId}`);
         }
     }
 
-    async restartService(serviceId: string): Promise<any> {
+    async restartService(serviceId: string): Promise<ApiResponse> {
         try {
             const response = await axios.post(`${this.baseUrl}/api/services/${serviceId}`, {
                 action: 'restart'
             }, {
                 headers: await this.getHeaders()
             });
-            return response.data;
+            return response.data as ApiResponse;
         } catch (error) {
-            this.handleApiError(error, `Failed to restart service ${serviceId}`);
+            throw this.handleApiError(error, `Failed to restart service ${serviceId}`);
         }
     }
 
-    async getMonitoringStatus(): Promise<any> {
+    async getMonitoringStatus(): Promise<ApiResponse> {
         try {
             const response = await axios.get(`${this.baseUrl}/monitoring/status`, {
                 headers: await this.getHeaders()
             });
-            return response.data;
+            return response.data as ApiResponse;
         } catch (error) {
-            this.handleApiError(error, 'Failed to fetch monitoring status');
+            throw this.handleApiError(error, 'Failed to fetch monitoring status');
         }
     }
 
-    async getErrorLogs(): Promise<any> {
+    async getErrorLogs(): Promise<ApiResponse> {
         try {
             const response = await axios.get(`${this.baseUrl}/monitoring/errors`, {
                 headers: await this.getHeaders()
             });
-            return response.data;
+            return response.data as ApiResponse;
         } catch (error) {
-            this.handleApiError(error, 'Failed to fetch error logs');
+            throw this.handleApiError(error, 'Failed to fetch error logs');
         }
     }
 
-    private handleApiError(error: any, message: string): never {
+    private handleApiError(error: any, message: string): Error {
         if (axios.isAxiosError(error)) {
-            const axiosError = error as AxiosError;
+            const axiosError = error as AxiosError<ApiResponse>;
             
             // 認証エラー (401) の場合は、トークンをリフレッシュできるようにPromiseをクリア
             if (axiosError.response?.status === 401) {
                 this.authTokenPromise = null;
-                logError(`${message}: 認証エラー - トークンが無効か期限切れの可能性があります`);
+                logError(`${message}: 認証エラー - トークンが無効か期限切れの可能性があります`, new Error(), 'ApiClient');
             }
             
             if (axiosError.response) {
-                throw new Error(`${message}: ${axiosError.response.status} - ${JSON.stringify(axiosError.response.data)}`);
+                // APIからのエラーレスポンスがある場合
+                const apiResponse = axiosError.response.data as ApiResponse;
+                return new Error(
+                    `${message}: ${axiosError.response.status} - ${apiResponse.message || JSON.stringify(axiosError.response.data)}`
+                );
             } else if (axiosError.request) {
-                throw new Error(`${message}: No response received`);
+                return new Error(`${message}: サーバーからの応答がありません`);
             }
         }
-        throw new Error(`${message}: ${error.message}`);
+        return new Error(`${message}: ${error.message || 'Unknown error'}`);
     }
 }
