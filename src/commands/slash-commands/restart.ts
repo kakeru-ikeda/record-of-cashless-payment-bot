@@ -17,8 +17,9 @@ export const restartCommand: Command = {
             await serviceManager.restartService('email-monitoring');
             await interaction.editReply('✅ メール監視サービスを再起動しました。');
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
             logError('サービス再起動エラー', error instanceof Error ? error : new Error(String(error)), 'RestartCommand');
-            await interaction.editReply('❌ サービスの再起動中にエラーが発生しました。');
+            await interaction.editReply(`❌ サービスの再起動中にエラーが発生しました: ${errorMessage}`);
         }
     },
     data: new SlashCommandBuilder()

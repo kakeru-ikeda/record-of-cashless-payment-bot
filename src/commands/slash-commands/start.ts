@@ -16,8 +16,9 @@ export const startCommand: Command = {
             await serviceManager.startService('email-monitoring');
             await interaction.editReply('✅ メール監視サービスを起動しました。');
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
             logError('サービス起動エラー', error instanceof Error ? error : new Error(String(error)), 'StartCommand');
-            await interaction.editReply('❌ サービスの起動中にエラーが発生しました。');
+            await interaction.editReply(`❌ サービスの起動中にエラーが発生しました: ${errorMessage}`);
         }
     },
     data: new SlashCommandBuilder()
